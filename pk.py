@@ -47,6 +47,7 @@ class PlantKeeper:
         }
         self.power = False
         self.validator = False
+        self.json = None
 
     @property
     def api(self):
@@ -97,6 +98,10 @@ class PlantKeeper:
             json=_dict,
             headers=self.header
         )
+        self.json = r.json()
 
         if r.status_code in [200, 201]:
-            self.power = r.json()['power']
+            try:
+                self.power = r.json()['power']
+            except KeyError:
+                self.power = 0
