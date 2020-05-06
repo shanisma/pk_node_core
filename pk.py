@@ -56,7 +56,7 @@ class PlantKeeper:
                 + self.host
                 + ':'
                 + str(self.port)
-                + '/'
+                + '/api-v1/'
                 + str(self.node_type)
                 + '/'
         )
