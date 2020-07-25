@@ -71,14 +71,14 @@ class PlantKeeper:
         )
 
     def is_gateway_up(self):
-        r = requests.get(
-            self.gateway,
-            json={},
-            headers=self.header
-        )
-        if r.status_code == 200:
-            return True
-        else:
+        """
+        Ensure gate way is up before starting main loop
+        :return:
+        """
+        try:
+            if requests.get(self.gateway).status_code == 200:
+                return True
+        except:
             return False
 
     def get_post_validator(self):
