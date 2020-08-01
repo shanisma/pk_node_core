@@ -23,26 +23,25 @@ def controller_callback(topic, msg):
     :param msg:
     :return:
     """
+    print("message received")
     print((topic, msg))
 
 
 def subscribe_controller():
+    sub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "SUB", SERVER, PORT)
+    sub_client.set_callback(controller_callback)
+    sub_client.connect()
+    sub_client.subscribe(_CONTROLLER_TOPIC)
     while True:
         sub_client.wait_msg()
 
 
 def publish_sensors():
+    pub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "PUB", SERVER, PORT)
+    pub_client.connect()
     while True:
         pub_client.publish(_SENSOR_TOPIC, read_sensors())
 
-
-sub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "SUB", SERVER, PORT)
-sub_client.set_callback(controller_callback)
-sub_client.connect()
-sub_client.subscribe(_CONTROLLER_TOPIC)
-
-pub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "PUB", SERVER, PORT)
-pub_client.connect()
 
 _thread.start_new_thread(publish_sensors, ())
 _thread.start_new_thread(subscribe_controller, ())
