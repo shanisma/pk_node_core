@@ -11,37 +11,79 @@ NODE_TAG = 'orchid'
 _SENSOR_TOPIC = NODE_TYPE + "/" + NODE_TAG + "/" + "sensor"
 _CONTROLLER_TOPIC = NODE_TYPE + "/" + NODE_TAG + "/" + "controller"
 
+_REGISTRY_SIGN_TOPIC = 'sprinkler/config/registry'
+_REGISTRY_VALIDATION_TOPIC = "sprinkler/config/registry/validation/" + NODE_TAG
 
-def read_sensors():
-    return ujson.dumps({"humidity_level": random.randint(0, 100)})
+registered = False
 
 
-def controller_callback(topic, msg):
-    """
-    Handle new message coming from the controller
-    :param topic:
-    :param msg:
-    :return:
-    """
-    print("message received")
-    print((topic, msg))
+def register():
+    c = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "REGISTRY ", SERVER, PORT)
+    c.connect()
+    c.publish(_REGISTRY_SIGN_TOPIC, ujson.dumps({"tag": NODE_TAG}))
+
+
+def wait_registry_response():
+    global registered
+
+    def callback(topic, msg):
+        global registered
+        registered = ujson.loads(msg)['acknowledge']
+        raise ValueError('force close subscription')
+
+    c = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "SUB", SERVER, PORT)
+    c.set_callback(callback)
+    c.connect()
+    c.subscribe(_REGISTRY_VALIDATION_TOPIC)
+    try:
+        while True:
+            c.wait_msg()
+    finally:
+        c.disconnect()
 
 
 def subscribe_controller():
-    sub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "SUB", SERVER, PORT)
-    sub_client.set_callback(controller_callback)
-    sub_client.connect()
-    sub_client.subscribe(_CONTROLLER_TOPIC)
+    def callback(topic, msg):
+        print((topic, msg))
+
+    c = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "SUB", SERVER, PORT)
+    c.set_callback(callback)
+    c.connect()
+    c.subscribe(_CONTROLLER_TOPIC)
     while True:
-        sub_client.wait_msg()
+        c.wait_msg()
 
 
 def publish_sensors():
-    pub_client = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "PUB", SERVER, PORT)
-    pub_client.connect()
+    def read_sensors():
+        return ujson.dumps(
+            {
+                "soil_moisture": random.randint(0, 100)
+            }
+        )
+
+    c = MQTTClient(NODE_TYPE + "_" + NODE_TAG + "_" + "PUB", SERVER, PORT)
+    c.connect()
     while True:
-        pub_client.publish(_SENSOR_TOPIC, read_sensors())
+        c.publish(_SENSOR_TOPIC, read_sensors())
 
 
-_thread.start_new_thread(publish_sensors, ())
+# =================================
+# Register tag to Master
+# =================================
+register()
+try:
+    wait_registry_response()
+except ValueError:
+    pass
+print(registered)
+
+# =================================
+# Subscription to controller
+# =================================
 _thread.start_new_thread(subscribe_controller, ())
+
+# =================================
+# Subscription to controller
+# =================================
+_thread.start_new_thread(publish_sensors, ())
