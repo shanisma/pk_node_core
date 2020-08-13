@@ -1,9 +1,11 @@
 """
- NodeMCU ESP8266 Cooling system device node
- Author Shanmugathas Vigneswaran
+Connect to wifi + print to tft screen booting message
+Author: Shanmugathas Vigneswaran
+email: shanmugathas.vigneswaran@outlook.fr
 """
 import network
-from settings import WIFI_SSID, WIFI_PASSWORD
+from settings import WIFI_SSID, WIFI_PASSWORD, tft
+from utils import boot_display
 
 
 def connect_access_point():
@@ -13,7 +15,7 @@ def connect_access_point():
         sta_if.active(True)
         sta_if.connect(WIFI_SSID, WIFI_PASSWORD)
         while not sta_if.isconnected():
-            pass
+            boot_display(tft)
     print('network config:', sta_if.ifconfig())
 
 
