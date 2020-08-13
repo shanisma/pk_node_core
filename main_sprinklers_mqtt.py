@@ -7,8 +7,6 @@ from sysfont import sysfont
 from umqtt.robust import MQTTClient
 from settings import tft
 
-MQTT_SERVER = "af120153-db6a-4fdd-a81b-6d902b00e936.nodes.k8s.fr-par.scw.cloud"
-MQTT_PORT = 32500
 NODE_TYPE = "sprinkler"
 NODE_TAG = 'orchid'
 
