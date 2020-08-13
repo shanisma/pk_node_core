@@ -8,6 +8,8 @@ License : MIT
 """
 
 import math
+from ST7735 import TFT
+from sysfont import sysfont
 
 
 def mean(xs):
@@ -51,3 +53,9 @@ def fit(x, y):
         return b * _x + a
 
     return model
+
+
+def boot_display(_tft):
+    _tft.fillrect((0, 0), (128, 50), TFT.WHITE)
+    _tft.fillrect((0, 50), (128, 160), TFT.GREEN)
+    _tft.text((2, 2), "BOOTING", TFT.BLACK, sysfont, 1.1, nowrap=False)
