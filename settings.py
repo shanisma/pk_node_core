@@ -1,55 +1,1 @@
-from machine import SPI, Pin, ADC
-from utils import fit
-from ST7735 import TFT
-
-# ======================== WIFI  ==========================
-# =========================================================
-WIFI_SSID = "< my wifi ssid (name) >"
-WIFI_PASSWORD = "< my wifi password >"
-# =================== MQTT SERVER =========================
-# =========================================================
-MQTT_SERVER = "< mqtt http endpoint >"
-MQTT_PORT = 32500
-# =================== Init TFT Screen =====================
-# =========================================================
-SPI = SPI(
-    2, baudrate=20000000,
-    polarity=0, phase=0,
-    sck=Pin(18), mosi=Pin(23), miso=Pin(12)
-)
-POWER_COLOR = TFT.GREEN
-tft = TFT(SPI, 2, 4, 15)
-tft.initb2()
-tft.rgb(True)
-
-# ============= Node type: Sprinkler settings =============
-# =========================================================
-soil_moisture_sensor = ADC(Pin(34))
-soil_moisture_sensor.atten(ADC.ATTN_11DB)
-soil_moisture_model = fit(
-    # Map analog read min/max
-    [2300, 1360],
-    # to 0% to 100%
-    [0, 100]
-)
-# Relay for valve power on / power off
-sprinkler_valve = Pin(26, Pin.OUT)
-
-# ============= Node type: Water settings =================
-# =========================================================
-
-# ======= Node type: Deep Water Culture Tank settings =====
-# =========================================================
-
-# ==== Node type: Deep Water Culture Endpoint settings ====
-# =========================================================
-
-# ============= Node type: Air Cooler settings ============
-# =========================================================
-
-# ============= Node type: Air Humidifier settings ========
-# =========================================================
-
-# ============= Node type: Air Heater settings ============
-# =========================================================
-
+from machine import SPI, Pin, ADCfrom utils import fitfrom ST7735 import TFT# ======================== WIFI  ==========================# =========================================================WIFI_SSID = "*"WIFI_PASSWORD = "*"# =================== API Gateway =========================# =========================================================API_GATEWAY_URL = "http://*"API_GATEWAY_PORT = 0API_GATEWAY_BASIC_AUTH = (None, None)# =================== MQTT SERVER =========================# =========================================================MQTT_SERVER = "*"MQTT_PORT = 0# =================== Init TFT Screen =====================# =========================================================SPI = SPI(    2, baudrate=20000000,    polarity=0, phase=0,    sck=Pin(18), mosi=Pin(23), miso=Pin(12))POWER_COLOR = TFT.GREENtft = TFT(SPI, 2, 4, 15)tft.initb2()tft.rgb(True)# ============= Node type: Sprinkler settings =============# =========================================================soil_moisture_sensor = ADC(Pin(34))soil_moisture_sensor.atten(ADC.ATTN_11DB)soil_moisture_model = fit(    # Map analog read min/max    [2300, 1360],    # to 0% to 100%    [0, 100])# Relay for valve power on / power offsprinkler_valve = Pin(26, Pin.OUT)# ============= Node type: Water settings =================# =========================================================# ======= Node type: Deep Water Culture Tank settings =====# =========================================================# ==== Node type: Deep Water Culture Endpoint settings ====# =========================================================# ============= Node type: Air Cooler settings ============# =========================================================# ============= Node type: Air Humidifier settings ========# =========================================================# ============= Node type: Air Heater settings ============# =========================================================
