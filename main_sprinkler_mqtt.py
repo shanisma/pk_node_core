@@ -1,5 +1,6 @@
 import gc
 import ujson
+import time
 import _thread
 from ST7735 import TFT
 from sysfont import sysfont
@@ -31,7 +32,13 @@ flow_dict = {
     "last": {
         "water_valve_signal": False,
     },
-    "sensors": {}
+    "sensors": {},
+    # if controller callback timeout
+    # active soft fuse
+    # soft will put all actuator security state
+    # off or on : depends on actuator
+    "updated_at": time.time(),
+    'soft_fuse': False
 }
 
 
@@ -42,6 +49,7 @@ def subscribe_controller():
         d = ujson.loads(msg)
         if d['tag'] == NODE_TAG:
             flow_dict['current']['water_valve_signal'] = d['water_valve_signal']
+            flow_dict['updated_at'] = time.time()
             water_valve_relay.value(d['water_valve_signal'])
 
     c = MQTTClient(
@@ -88,7 +96,7 @@ def init_display():
     _TFT.text((2, 10), "Node:" + NODE_TYPE, TFT.BLACK, sysfont, 1.1, nowrap=False)
     _TFT.text((2, 20), "Tag: " + NODE_TAG, TFT.BLACK, sysfont, 1.1, nowrap=False)
     if not registered:
-        _TFT.text((2, 30), "WARNING:tag already registered !!!", TFT.BLACK, sysfont, 1.1, nowrap=False)
+        _TFT.text((2, 30), "WARNING:tag already registered !!!", TFT.RED, sysfont, 1.1, nowrap=False)
         _TFT.fillrect((0, 50), (128, 160), TFT.RED)
 
 
@@ -108,7 +116,23 @@ def update_display():
                   TFT.BLACK, sysfont, 1.1, nowrap=False)
         _TFT.text((2, 70), "Soil Moisture: " + str(flow_dict['sensors']['soil_moisture']),
                   TFT.BLACK, sysfont, 1.1, nowrap=False)
+
+        _TFT.text((2, 70), "Soil Moisture: " + str(flow_dict['sensors']['soil_moisture']),
+                  TFT.BLACK, sysfont, 1.1, nowrap=False)
+        if flow_dict['soft_fuse']:
+            _TFT.text((2, 80), "Soft fuse !", TFT.RED, sysfont, 1.1, nowrap=False)
         gc.collect()
+
+
+def soft_fuse():
+    global flow_dict
+    while True:
+        if (time.time() - flow_dict['updated_at']) > 1:
+            water_valve_relay.value(False)
+            flow_dict['current']['water_valve_signal'] = False
+            flow_dict['soft_fuse'] = True
+        else:
+            flow_dict['soft_fuse'] = False
 
 
 # =================================
@@ -116,6 +140,7 @@ def update_display():
 # =================================
 registered = register_sprinkler(NODE_TAG)
 init_display()
+
 # =================================
 # Subscription to controller
 # =================================
@@ -130,3 +155,8 @@ _thread.start_new_thread(publish_sensors, ())
 # Update TFT screen
 # =================================
 _thread.start_new_thread(update_display, ())
+
+# =================================
+# Soft fuse loop
+# =================================
+_thread.start_new_thread(soft_fuse, ())
