@@ -60,17 +60,6 @@ def fit(x, y):
 
     return model
 
-# soil_moisture_sensor = ADC(Pin(34))
-# soil_moisture_sensor.atten(ADC.ATTN_11DB)
-# soil_moisture_model = fit(
-#     # Map analog read min/max
-#     [2300, 1360],
-#     # to 0% to 100%
-#     [0, 100]
-# )
-# # Relay for valve power on / power off
-# sprinkler_valve = Pin(26, Pin.OUT)
-
 
 def boot_display(_tft):
     _tft.fillrect((0, 0), (128, 50), TFT.WHITE)
