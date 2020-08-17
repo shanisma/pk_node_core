@@ -1,3 +1,12 @@
+"""
+Node type Sprinkler main.py file.
+Development version, for production use minified main.py
+in sprinkler-firmware/main.py
+
+Author: Shanmugathas Vigneswaran
+email: vigneswaran.shanmugathas@outlook.fr
+"""
+
 import gc
 import ujson
 import time
