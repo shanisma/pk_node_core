@@ -14,13 +14,11 @@ import _thread
 from ST7735 import TFT
 from sysfont import sysfont
 from umqtt.robust import MQTTClient
-from settings import (
-    tft,
-    MQTT_SERVER,
-    MQTT_PORT,
-    WIFI_SSID,
-    __sprinkler_firmware_version__
-)
+from settings import tft
+from settings import MQTT_SERVER
+from settings import MQTT_PORT
+from settings import WIFI_SSID
+from settings import __sprinkler_firmware_version__
 from utils import register_sprinkler
 from sprinkler_io import read_sensors, water_valve_relay
 
@@ -92,7 +90,7 @@ def publish_sensors():
     while True:
         s = read_sensors(NODE_TAG)
         flow_dict['sensors'] = s
-        c.publish(_SENSOR_TOPIC, ujson.dumps(s))
+        c.publish(_SENSOR_TOPIC, s['influx_message'])
 
 
 def init_display():

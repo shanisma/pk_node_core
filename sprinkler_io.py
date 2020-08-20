@@ -39,7 +39,13 @@ def read_sensors(tag):
     metric.add_tag('tag', tag)
     metric.add_value('soil_moisture_raw_adc', soil_moisture_raw_adc)
     metric.add_value('soil_moisture', soil_moisture)
-    return str(metric)
+
+    return {
+        "tag": tag,
+        "soil_moisture_raw_adc": soil_moisture_raw_adc,
+        "soil_moisture": soil_moisture,
+        "influx_message": str(metric)
+    }
 
 
 # ======================== Output  ========================
