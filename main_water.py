@@ -39,13 +39,11 @@ flow_dict = {
         "water_pump_signal": False,
         "nutrient_pump_signal": False,
         "ph_downer_pump_signal": False,
-        "probe_cleaning_signal": False
     },
     "last": {
         "water_pump_signal": False,
         "nutrient_pump_signal": False,
         "ph_downer_pump_signal": False,
-        "probe_cleaning_signal": False
     },
     "sensors": {},
     # if controller callback timeout
@@ -65,12 +63,10 @@ def subscribe_controller():
         flow_dict['current']['water_pump_signal'] = d['water_pump_signal']
         flow_dict['current']['nutrient_pump_signal'] = d['nutrient_pump_signal']
         flow_dict['current']['ph_downer_pump_signal'] = d['ph_downer_pump_signal']
-        flow_dict['current']['probe_cleaning_signal'] = d['probe_cleaning_signal']
         flow_dict['updated_at'] = time.time()
         water_pump_relay.value(d['water_pump_signal'])
         nutrient_pump_relay.value(d['nutrient_pump_signal'])
         ph_downer_pump_relay.value(d['ph_downer_pump_signal'])
-        probe_cleaning_relay.value(d['probe_cleaning_signal'])
 
     c = MQTTClient(
         NODE_TYPE
@@ -124,16 +120,27 @@ def update_display():
             _TFT.fillrect((110, 50), (20, 10), TFT.RED)
             _TFT.text((2, 50), "Water pump off", TFT.BLACK, sysfont, 1.1, nowrap=False)
 
-        _TFT.text((2, 60), "",
-                  TFT.BLACK, sysfont, 1.1, nowrap=False)
-        _TFT.text((2, 70), "",
-                  TFT.BLACK, sysfont, 1.1, nowrap=False)
+        if flow_dict['current']['nutrient_pump_signal']:
+            _TFT.fillrect((110, 60), (20, 10), TFT.GREEN)
+            _TFT.text((2, 60), "Nutr. pump on", TFT.BLACK, sysfont, 1.1, nowrap=False)
+        else:
+            _TFT.fillrect((110, 60), (20, 10), TFT.RED)
+            _TFT.text((2, 60), "Nutr. pump off", TFT.BLACK, sysfont, 1.1, nowrap=False)
 
-        _TFT.text((2, 70), "",
+        if flow_dict['current']['ph_downer_pump_signal']:
+            _TFT.fillrect((110, 70), (20, 10), TFT.GREEN)
+            _TFT.text((2, 70), "pH pump on", TFT.BLACK, sysfont, 1.1, nowrap=False)
+        else:
+            _TFT.fillrect((110, 70), (20, 10), TFT.RED)
+            _TFT.text((2, 70), "pH pump off", TFT.BLACK, sysfont, 1.1, nowrap=False)
+
+        _TFT.text((2, 80), "Water Level:" + str(flow_dict['sensors']['water_level']) + "%",
                   TFT.BLACK, sysfont, 1.1, nowrap=False)
+        _TFT.text((2, 90), "pH:" + str(flow_dict['sensors']['ph']), TFT.BLACK, sysfont, 1.1, nowrap=False)
+        _TFT.text((2, 100), "EC:" + str(flow_dict['sensors']['ec']) + "mS/m", TFT.BLACK, sysfont, 1.1, nowrap=False)
+        _TFT.text((2, 110), "ORP:" + str(flow_dict['sensors']['orp']) + "mV", TFT.BLACK, sysfont, 1.1, nowrap=False)
         if flow_dict['soft_fuse']:
-            _TFT.text((2, 80), "Soft fuse !", TFT.RED, sysfont, 1.1, nowrap=False)
-
+            _TFT.text((2, 120), "Soft fuse !", TFT.RED, sysfont, 1.1, nowrap=False)
         _TFT.text((2, 150), __water_firmware_version__,
                   TFT.BLACK, sysfont, 1.1, nowrap=False)
         gc.collect()
@@ -146,11 +153,9 @@ def soft_fuse():
             water_pump_relay.value(False)
             nutrient_pump_relay.value(False)
             ph_downer_pump_relay.value(False)
-            probe_cleaning_relay.value(False)
             flow_dict['current']['water_pump_signal'] = False
             flow_dict['current']['nutrient_pump_signal'] = False
             flow_dict['current']['ph_downer_pump_signal'] = False
-            flow_dict['current']['probe_cleaning_signal'] = False
             flow_dict['soft_fuse'] = True
         else:
             flow_dict['soft_fuse'] = False
