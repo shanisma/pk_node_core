@@ -25,7 +25,6 @@ from water_io import read_sensors
 from water_io import water_pump_relay
 from water_io import nutrient_pump_relay
 from water_io import ph_downer_pump_relay
-from water_io import probe_cleaning_relay
 
 gc.enable()
 
